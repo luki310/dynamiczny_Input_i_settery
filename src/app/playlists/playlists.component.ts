@@ -65,6 +65,7 @@ export class PlaylistsComponent implements OnInit {
       playlist.id = Date.now();
       this.playlists.push(playlist);
     }
+    this.mode = 'none';
   }
 
   constructor() {}
