@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 
 @Component({
-  selector: 'playlists-list',
+  selector: "playlists-list",
   template: `
     <table class="table table-striped">
       <thead>
@@ -15,7 +15,12 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
       <tbody>
         <tr *ngFor="let playlist of playlists; let i = index" class="playlist-row"
           [ngClass]="{'table-active': selected == playlist}"
-          [ngStyle]="{borderBottomColor:playlist.color}"
+          [ngStyle]="{
+            borderBottomColor:playlist.color,
+            color: ( playlistHover?.id == playlist.id? playlist.color : 'initial' )
+           }"
+          (mouseenter)="playlistHover = playlist"
+          (mouseleave)="playlistHover = false"
           (click)="select(playlist)">
           <td> {{ i + 1 }}. </td>
           <td> {{ playlist.name }} </td>
@@ -24,36 +29,47 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
             <label><input type="checkbox" [(ngModel)]="playlist.favourite" (click)="$event.stopPropagation();">
               Ulubiona</label>
           </td>
+          <td>
+            <span class="remove" (click)="remove(playlist)" >&times;</span>
+          </td>
         </tr>
       </tbody>
     </table>
   `,
-  styles: [`
+  styles: [
+    `
+    tr > td:last-child {
+      cursor: pointer;
+    }
+    .playlist-row:hover {
+      /*font-size: 130%;*/
+      font-weight: 600;
+    }
     .playlist-row {
         border-bottom: 3px solid transparent;
     }
-  `]
+  `
+  ]
 })
 export class PlaylistsListComponent implements OnInit {
+  playlistHover;
 
-  playlistHover
+  @Output("selected") onSelected = new EventEmitter();
 
-  @Output('selected')
-  onSelected = new EventEmitter()
+  @Input() playlists;
 
-  @Input()
-  playlists;
+  @Input() selected;
 
-  @Input()
-  selected;
-
-  select(playlist){
+  select(playlist) {
     this.onSelected.emit(playlist);
   }
 
-  constructor() { }
-
-  ngOnInit() {
+  remove(playlist) {
+    let index = this.playlists.findIndex(p => p.id == playlist.id);
+    this.playlists.splice(index, 1);
   }
 
+  constructor() {}
+
+  ngOnInit() {}
 }
